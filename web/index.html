@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Signal Pro</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+body{
+background:#0f172a;
+color:white;
+font-family:Arial;
+text-align:center;
+margin:0;
+padding:20px;
+}
+select,button{
+width:90%;
+padding:12px;
+margin:10px;
+border-radius:8px;
+border:none;
+font-size:16px;
+}
+button{
+background:#3b82f6;
+color:white;
+}
+.card{
+background:#1e293b;
+padding:15px;
+border-radius:12px;
+margin-top:20px;
+}
+img{
+width:100%;
+margin-top:15px;
+border-radius:10px;
+}
+</style>
+</head>
+<body>
+
+<h2>🤖 AI Signal Pro</h2>
+
+<select id="pair"></select>
+<select id="tf"></select>
+
+<button onclick="generate()">🚀 Generate Signal</button>
+
+<div class="card" id="result"></div>
+<img id="chart"/>
+
+<script>
+
+async function loadData(){
+let p = await fetch('/pairs');
+let pairs = await p.json();
+
+let select = document.getElementById("pair");
+
+pairs.forex.forEach(x=>{
+let o=document.createElement("option");
+o.text=x;
+select.add(o);
+});
+
+pairs.otc.forEach(x=>{
+let o=document.createElement("option");
+o.text=x;
+select.add(o);
+});
+
+let tf = await fetch('/timeframes');
+let tfs = await tf.json();
+let tfSelect=document.getElementById("tf");
+
+tfs.forEach(x=>{
+let o=document.createElement("option");
+o.text=x;
+tfSelect.add(o);
+});
+}
+
+async function generate(){
+let pair=document.getElementById("pair").value;
+
+let r = await fetch(`/signal?pair=${pair}`);
+let data = await r.json();
+
+document.getElementById("result").innerHTML =
+`Pair: ${data.pair}<br>
+Direction: ${data.direction}<br>
+Probability: ${data.probability}%`;
+
+document.getElementById("chart").src = /chart?pair=${pair}&t=${Date.now()};
+}
+
+loadData();
+</script>
+
+</body>
+</html>
